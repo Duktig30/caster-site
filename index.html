@@ -1028,88 +1028,25 @@
         // 材质数据（包含详细的属性信息）
         const materials = [
             { 
-                name: "人造橡胶TPR", 
-                hardness: "75-85 ShoreA", 
-                maxLoad: 500, 
-                rollingResistance: 4, 
+                name: "充气轮", 
+                hardness: "75 ShoreA", 
+                maxLoad: 350, 
+                rollingResistance: 2, 
                 wearResistance: 2, 
-                floorProtection: 4, 
+                floorProtection: 5, 
                 noise: 3,
-                desc: "经济实用，适用于室内平坦地面",
-                advantages: "价格实惠，静音效果好",
-                disadvantages: "耐磨性一般，不适用于粗糙地面",
+                desc: "适用于轻载、减震需求场合，地板保护好",
+                advantages: "减震性能优异，地板保护好",
+                disadvantages: "耐磨性一般，载重有限",
                 scenarioPriority: {
-                    general: 3,
-                    medical: 5,
-                    outdoor: 1,
-                    food: 2,
-                    heavy: 1,
-                    cleanroom: 3
-                },
-                tempRange: [-20, 60]
-            },
-            { 
-                name: "塑芯PU", 
-                hardness: "95 ShoreA", 
-                maxLoad: 500, 
-                rollingResistance: 4, 
-                wearResistance: 3, 
-                floorProtection: 4, 
-                noise: 3,
-                desc: "耐磨性好，适用于多种地面",
-                advantages: "耐磨性强，适合中等载重",
-                disadvantages: "滚动阻力较大",
-                scenarioPriority: {
-                    general: 4,
-                    medical: 4,
+                    general: 2,
+                    medical: 3,
                     outdoor: 4,
-                    food: 3,
-                    heavy: 2,
-                    cleanroom: 3
-                },
-                tempRange: [-20, 80]
-            },
-            { 
-                name: "浇注PU", 
-                hardness: "95 ShoreA", 
-                maxLoad: 5000, 
-                rollingResistance: 4, 
-                wearResistance: 4, 
-                floorProtection: 4, 
-                noise: 4,
-                desc: "高承载，耐磨，适用于工业环境",
-                advantages: "高载重能力，耐磨性极佳",
-                disadvantages: "噪音较大，成本较高",
-                scenarioPriority: {
-                    general: 5,
-                    medical: 2,
-                    outdoor: 5,
-                    food: 4,
-                    heavy: 5,
+                    food: 1,
+                    heavy: 1,
                     cleanroom: 2
                 },
-                tempRange: [-20, 120]
-            },
-            { 
-                name: "MC尼龙", 
-                hardness: "70 ShoreD", 
-                maxLoad: 15000, 
-                rollingResistance: 5, 
-                wearResistance: 4, 
-                floorProtection: 3, 
-                noise: 4,
-                desc: "超高强度，适用于重载环境",
-                advantages: "极高载重能力，耐磨性强",
-                disadvantages: "滚动阻力大，地板保护一般",
-                scenarioPriority: {
-                    general: 4,
-                    medical: 1,
-                    outdoor: 5,
-                    food: 2,
-                    heavy: 5,
-                    cleanroom: 3
-                },
-                tempRange: [-40, 120]
+                tempRange: [-20, 55]
             },
             { 
                 name: "实心橡胶", 
@@ -1130,7 +1067,217 @@
                     heavy: 3,
                     cleanroom: 4
                 },
-                tempRange: [-40, 80]
+                tempRange: [-20, 75]
+            },
+            { 
+                name: "软橡胶", 
+                hardness: "75-85 ShoreA", 
+                maxLoad: 500, 
+                rollingResistance: 2, 
+                wearResistance: 2, 
+                floorProtection: 4, 
+                noise: 3,
+                desc: "适用于轻载、静音需求场合",
+                advantages: "静音，地板保护好",
+                disadvantages: "耐磨性一般，载重有限",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 5,
+                    outdoor: 2,
+                    food: 2,
+                    heavy: 1,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 90]
+            },
+            { 
+                name: "人造橡胶TPR", 
+                hardness: "75-85 ShoreA", 
+                maxLoad: 500, 
+                rollingResistance: 4, 
+                wearResistance: 2, 
+                floorProtection: 4, 
+                noise: 3,
+                desc: "经济实用，适用于室内平坦地面",
+                advantages: "价格实惠，静音效果好",
+                disadvantages: "耐磨性一般，不适用于粗糙地面",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 5,
+                    outdoor: 1,
+                    food: 2,
+                    heavy: 1,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 55]
+            },
+            { 
+                name: "塑芯PU", 
+                hardness: "95 ShoreA", 
+                maxLoad: 500, 
+                rollingResistance: 4, 
+                wearResistance: 3, 
+                floorProtection: 4, 
+                noise: 3,
+                desc: "耐磨性好，适用于多种地面",
+                advantages: "耐磨性强，适合中等载重",
+                disadvantages: "滚动阻力较大",
+                scenarioPriority: {
+                    general: 4,
+                    medical: 4,
+                    outdoor: 4,
+                    food: 3,
+                    heavy: 2,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 75]
+            },
+            { 
+                name: "浇注PU", 
+                hardness: "95 ShoreA", 
+                maxLoad: 5000, 
+                rollingResistance: 4, 
+                wearResistance: 4, 
+                floorProtection: 4, 
+                noise: 4,
+                desc: "高承载，耐磨，适用于工业环境",
+                advantages: "高载重能力，耐磨性极佳",
+                disadvantages: "噪音较大，成本较高",
+                scenarioPriority: {
+                    general: 5,
+                    medical: 2,
+                    outdoor: 5,
+                    food: 4,
+                    heavy: 5,
+                    cleanroom: 2
+                },
+                tempRange: [-20, 75]
+            },
+            { 
+                name: "浇注软PU", 
+                hardness: "75 ShoreA", 
+                maxLoad: 300, 
+                rollingResistance: 3, 
+                wearResistance: 4, 
+                floorProtection: 5, 
+                noise: 3,
+                desc: "适用于洗地机等设备，柔软静音",
+                advantages: "静音，地板保护好",
+                disadvantages: "载重能力有限",
+                scenarioPriority: {
+                    general: 2,
+                    medical: 4,
+                    outdoor: 2,
+                    food: 2,
+                    heavy: 1,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 75]
+            },
+            { 
+                name: "浇注硬PU", 
+                hardness: "70 ShoreD", 
+                maxLoad: 1000, 
+                rollingResistance: 4, 
+                wearResistance: 4, 
+                floorProtection: 4, 
+                noise: 3,
+                desc: "高耐磨，适用于重载洗地机等设备，特殊环境可达-40~75℃",
+                advantages: "耐磨性强，适合重载",
+                disadvantages: "硬度高，减震一般",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 3,
+                    outdoor: 3,
+                    food: 2,
+                    heavy: 3,
+                    cleanroom: 2
+                },
+                tempRange: [-20, 75]
+            },
+            { 
+                name: "PP聚丙烯", 
+                hardness: "70 ShoreD", 
+                maxLoad: 2000, 
+                rollingResistance: 5, 
+                wearResistance: 2, 
+                floorProtection: 2, 
+                noise: 3,
+                desc: "经济型材质，适用于一般环境",
+                advantages: "价格低，耐腐蚀",
+                disadvantages: "耐磨性一般，地板保护一般",
+                scenarioPriority: {
+                    general: 2,
+                    medical: 2,
+                    outdoor: 2,
+                    food: 2,
+                    heavy: 1,
+                    cleanroom: 2
+                },
+                tempRange: [-20, 65]
+            },
+            { 
+                name: "酚醛", 
+                hardness: "70 ShoreD", 
+                maxLoad: 2000, 
+                rollingResistance: 5, 
+                wearResistance: 4, 
+                floorProtection: 2, 
+                noise: 4,
+                desc: "高温耐磨，适用于高温环境和重载设备",
+                advantages: "耐高温，耐磨性好",
+                disadvantages: "地板保护一般，噪音较大",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 1,
+                    outdoor: 3,
+                    food: 2,
+                    heavy: 4,
+                    cleanroom: 2
+                },
+                tempRange: [-20, 280]
+            },
+            { 
+                name: "尼龙", 
+                hardness: "70 ShoreD", 
+                maxLoad: 2000, 
+                rollingResistance: 5, 
+                wearResistance: 4, 
+                floorProtection: 3, 
+                noise: 4,
+                desc: "高强度，适用于重载环境",
+                advantages: "高载重能力，耐磨性强",
+                disadvantages: "滚动阻力大，地板保护一般",
+                scenarioPriority: {
+                    general: 4,
+                    medical: 1,
+                    outdoor: 5,
+                    food: 2,
+                    heavy: 5,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 90]
+            },
+            { 
+                name: "MC尼龙", 
+                hardness: "70 ShoreD", 
+                maxLoad: 15000, 
+                rollingResistance: 5, 
+                wearResistance: 4, 
+                floorProtection: 3, 
+                noise: 4,
+                desc: "超高强度，适用于重载环境",
+                advantages: "极高载重能力，耐磨性强",
+                disadvantages: "滚动阻力大，地板保护一般",
+                scenarioPriority: {
+                    general: 4,
+                    medical: 1,
+                    outdoor: 5,
+                    food: 2,
+                    heavy: 5,
+                    cleanroom: 3
+                },
+                tempRange: [-20, 65]
             },
             { 
                 name: "灰铸铁", 
@@ -1151,8 +1298,51 @@
                     heavy: 5,
                     cleanroom: 1
                 },
-                tempRange: [-40, 200]
+                tempRange: [-60, 550]
             },
+            { 
+                name: "球墨铸铁", 
+                hardness: "H8400", 
+                maxLoad: 15000, 
+                rollingResistance: 5, 
+                wearResistance: 5, 
+                floorProtection: 1, 
+                noise: 5,
+                desc: "极端重载，适用于特殊工业环境",
+                advantages: "极高载重能力，耐磨性极佳",
+                disadvantages: "噪音大，地板保护差",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 1,
+                    outdoor: 5,
+                    food: 1,
+                    heavy: 5,
+                    cleanroom: 1
+                },
+                tempRange: [-60, 550]
+            },
+            { 
+                name: "45号钢", 
+                hardness: "H8400", 
+                maxLoad: 15000, 
+                rollingResistance: 5, 
+                wearResistance: 5, 
+                floorProtection: 1, 
+                noise: 5,
+                desc: "极端重载，适用于特殊工业环境",
+                advantages: "极高载重能力，耐磨性极佳",
+                disadvantages: "噪音大，地板保护差",
+                scenarioPriority: {
+                    general: 3,
+                    medical: 1,
+                    outdoor: 5,
+                    food: 1,
+                    heavy: 5,
+                    cleanroom: 1
+                },
+                tempRange: [-60, 550]
+            },
+            // 下面为图片未列出但原有的材质，保留原温度区间
             { 
                 name: "食品级PU", 
                 hardness: "90 ShoreA", 
@@ -1714,7 +1904,7 @@
             }, 1000); // 适当缩短延迟时间
         });
         
-        // 监听“使用环境”变化，自动触发计算
+        // 监听"使用环境"变化，自动触发计算
         document.getElementById('environment').addEventListener('change', function() {
             document.getElementById('calculate-btn').click();
         });
