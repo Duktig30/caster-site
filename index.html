@@ -1546,16 +1546,16 @@
                 // 确定图片路径
                 let imageSrc;
                 if (bracketSeriesList[0] === bracketSeriesList[1] && bracketSeriesList[1] === bracketSeriesList[2]) {
-                    // 三个方案相同
+                    // 三个方案支架系列都一样
                     imageSrc = 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
                 } else if (bracketSeriesList[0] === bracketSeriesList[1]) {
-                    // 第一二个方案相同
+                    // 标准方案和增强方案支架系列相同
                     imageSrc = index < 2 ? 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png' : 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
                 } else if (bracketSeriesList[1] === bracketSeriesList[2]) {
-                    // 第二三个方案相同
+                    // 增强方案和高强方案支架系列相同
                     imageSrc = index === 0 ? 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png' : 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
                 } else {
-                    // 其他情况（如没有两个方案相同）默认全部用第一张
+                    // 其他情况，全部用第一个链接
                     imageSrc = 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
                 }
 
