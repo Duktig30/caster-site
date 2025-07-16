@@ -1547,16 +1547,16 @@
                 let imageSrc;
                 if (bracketSeriesList[0] === bracketSeriesList[1] && bracketSeriesList[1] === bracketSeriesList[2]) {
                     // 三个方案相同
-                    imageSrc = '微信图片_20250716093300.png';
+                    imageSrc = 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
                 } else if (bracketSeriesList[0] === bracketSeriesList[1]) {
                     // 第一二个方案相同
-                    imageSrc = index < 2 ? '微信图片_20250716093300.png' : '微信图片_20250716093323.png';
+                    imageSrc = index < 2 ? 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png' : 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
                 } else if (bracketSeriesList[1] === bracketSeriesList[2]) {
                     // 第二三个方案相同
-                    imageSrc = index === 0 ? '微信图片_20250716093300.png' : '微信图片_20250716093323.png';
+                    imageSrc = index === 0 ? 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png' : 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
                 } else {
                     // 其他情况（如没有两个方案相同）默认全部用第一张
-                    imageSrc = '微信图片_20250716093300.png';
+                    imageSrc = 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
                 }
 
                 schemeCard.innerHTML = `
