@@ -1045,7 +1045,8 @@
                     food: 2,
                     heavy: 1,
                     cleanroom: 3
-                }
+                },
+                tempRange: [-20, 60]
             },
             { 
                 name: "塑芯PU", 
@@ -1065,7 +1066,8 @@
                     food: 3,
                     heavy: 2,
                     cleanroom: 3
-                }
+                },
+                tempRange: [-20, 80]
             },
             { 
                 name: "浇注PU", 
@@ -1085,7 +1087,8 @@
                     food: 4,
                     heavy: 5,
                     cleanroom: 2
-                }
+                },
+                tempRange: [-20, 120]
             },
             { 
                 name: "MC尼龙", 
@@ -1105,7 +1108,8 @@
                     food: 2,
                     heavy: 5,
                     cleanroom: 3
-                }
+                },
+                tempRange: [-40, 120]
             },
             { 
                 name: "实心橡胶", 
@@ -1125,7 +1129,8 @@
                     food: 1,
                     heavy: 3,
                     cleanroom: 4
-                }
+                },
+                tempRange: [-40, 80]
             },
             { 
                 name: "灰铸铁", 
@@ -1145,7 +1150,8 @@
                     food: 1,
                     heavy: 5,
                     cleanroom: 1
-                }
+                },
+                tempRange: [-40, 200]
             },
             { 
                 name: "食品级PU", 
@@ -1165,7 +1171,8 @@
                     food: 5,
                     heavy: 2,
                     cleanroom: 4
-                }
+                },
+                tempRange: [-20, 80]
             },
             { 
                 name: "防静电TPE", 
@@ -1185,9 +1192,20 @@
                     food: 3,
                     heavy: 1,
                     cleanroom: 5
-                }
+                },
+                tempRange: [-20, 60]
             }
         ];
+        
+        // 环境与温度区间映射
+        const environmentTempMap = {
+            "indoor": [-20, 60],
+            "outdoor": [-20, 80],
+            "high-temp": [60, 120],
+            "low-temp": [-40, 0],
+            "cleanroom": [-20, 60],
+            "food": [-20, 80]
+        };
         
         // 单轮类型数据
         const wheelTypes = {
@@ -1238,7 +1256,8 @@
             const safetyFactor = parseFloat(document.getElementById('safety-factor').value) || 1.3;
             const wheelCount = parseFloat(document.getElementById('wheel-count').value) || 4;
             const heightReq = parseFloat(document.getElementById('height-req').value);
-                const applicationScenario = document.getElementById('application-scenario').value;
+            const applicationScenario = document.getElementById('application-scenario').value;
+            const environment = document.getElementById('environment').value;
 
             
             if (wheelCount <= 0) {
@@ -1263,7 +1282,7 @@
             document.getElementById('result-title').textContent = resultTitle;
             
             // 生成推荐方案
-            generateRecommendations(loadPerWheel, heightReq, applicationScenario);
+            generateRecommendations(loadPerWheel, heightReq, applicationScenario, environment);
         });
         
         // 根据高度要求找到最合适的轮子尺寸
@@ -1369,11 +1388,20 @@
             `;
         }
         
-        // 根据应用场景筛选材质
-        function filterMaterialsByScenario(applicationScenario, load) {
+        // 根据应用场景和环境筛选材质
+        function filterMaterialsByScenario(applicationScenario, load, environment) {
             // 首先筛选满足载重要求的材质
             let suitableMaterials = materials.filter(m => m.maxLoad >= load);
-            
+            // 筛选温度
+            if (environment) {
+                const [envMin, envMax] = environmentTempMap[environment] || [-100, 200];
+                suitableMaterials = suitableMaterials.filter(m => {
+                    if (!m.tempRange) return true; // 没有温度限制的材质默认通过
+                    const [matMin, matMax] = m.tempRange;
+                    // 材质温度区间要覆盖环境区间
+                    return matMin <= envMin && matMax >= envMax;
+                });
+            }
             // 根据应用场景进行排序
             suitableMaterials.sort((a, b) => {
                 // 获取当前场景下的优先级
@@ -1444,7 +1472,7 @@
         }
         
         // 生成推荐方案
-        function generateRecommendations(baseLoad, heightReq, applicationScenario) {
+        function generateRecommendations(baseLoad, heightReq, applicationScenario, environment) {
 
             const schemesContainer = document.getElementById('schemes-container');
             schemesContainer.innerHTML = '';
@@ -1524,7 +1552,7 @@
             // 生成方案卡片
             schemes.forEach((scheme, index) => {
                 const { bracket, wheel, load } = scheme;
-                const suitableMaterials = filterMaterialsByScenario(applicationScenario, load);
+                const suitableMaterials = filterMaterialsByScenario(applicationScenario, load, environment);
 
                 // 创建方案卡片
                 const schemeCard = document.createElement('div');
@@ -1631,6 +1659,7 @@
         document.getElementById('copy-btn').addEventListener('click', function() {
             const schemeElements = document.querySelectorAll('.scheme');
             const applicationScenario = document.getElementById('application-scenario').value;
+            const environment = document.getElementById('environment').value;
             const scenarioText = getScenarioDescription(applicationScenario);
             
             
@@ -1683,6 +1712,11 @@
                     console.error('计算按钮未找到，无法自动触发计算');
                 }
             }, 1000); // 适当缩短延迟时间
+        });
+        
+        // 监听“使用环境”变化，自动触发计算
+        document.getElementById('environment').addEventListener('change', function() {
+            document.getElementById('calculate-btn').click();
         });
         
         // 图片错误处理函数
