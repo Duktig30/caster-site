@@ -283,7 +283,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-end;
         }
         
         .scheme ul {
@@ -371,7 +371,7 @@
         }
         
         .scheme-benefits {
-            margin-top: 10px;
+            margin-top: 180px; /* 预留推荐材质空间，具体数值可微调 */
             padding: 12px;
             background: #f0f9ff;
             border-radius: 8px;
@@ -402,12 +402,17 @@
         }
         
         .material-options {
+            position: absolute;
+            top: 220px; /* 具体数值可根据实际视觉效果微调 */
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 2;
+            margin-bottom: 0;
             background: #fff8f0;
             padding: 10px;
             border-radius: 6px;
-            margin: 10px 0;
             font-size: 0.85rem;
-            margin-bottom: 18px;
         }
         
         .material-options h5 {
@@ -1929,6 +1934,16 @@
             img.onerror = null; // 防止无限循环
             img.src = fallbackSrc;
         }
+        
+        // 新增：监听所有参数输入栏的input和select变化，自动触发计算
+        document.querySelectorAll('.input-section input, .input-section select').forEach(el => {
+            el.addEventListener('input', function() {
+                document.getElementById('calculate-btn').click();
+            });
+            el.addEventListener('change', function() {
+                document.getElementById('calculate-btn').click();
+            });
+        });
     </script>
 
 </body></html>
