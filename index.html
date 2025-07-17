@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head>
+<!DOCTYPE html><html lang="zh-CN"><heac:\Users\36749\caster-site\index.htmld>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>江龙脚轮选型系统 - FABE话术生成器</title>
@@ -1013,16 +1013,29 @@
             { diameter: 400, size: "16寸", loadRange: [250, 7500], height: 560 }
         ];
         
-        // 支架系列数据
+        // 支架系列数据（包含图片URL）
         const bracketSeries = [
-            { series: "K91/R91", loadRange: [10000, Infinity], desc: "超重型工业脚轮支架" },
-            { series: "K90/R90", loadRange: [3000, 10000], desc: "重型工业脚轮支架" },
-            { series: "K88/R88", loadRange: [2000, 5000], desc: "工业级脚轮支架" },
-            { series: "K80/R80", loadRange: [1000, 3300], desc: "中型工业脚轮支架" },
-            { series: "80/81", loadRange: [600, 1800], desc: "通用工业脚轮支架" },
-            { series: "68/69", loadRange: [450, 800], desc: "中型商用脚轮支架" },
-            { series: "51/63/N63/K63/R63/70", loadRange: [100, 550], desc: "轻型工业脚轮支架" },
-            { series: "30/33/42/46/56", loadRange: [25, 135], desc: "轻型商用脚轮支架" }
+            { series: "K91", loadRange: [10000, Infinity], desc: "超重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860aa58cb8da5c8bc4ee7.jpg" },
+            { series: "R91", loadRange: [10000, Infinity], desc: "超重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860aa58cb8da5c8bc4ee7.jpg" },
+            { series: "K90", loadRange: [3000, 10000], desc: "重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860a058cb8da5c8bc4e81.jpg" },
+            { series: "R90", loadRange: [3000, 10000], desc: "重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860c958cb8da5c8bc506b.jpg" },
+            { series: "K88", loadRange: [2000, 5000], desc: "工业级脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878609858cb8da5c8bc4e2b.jpg" },
+            { series: "R88", loadRange: [2000, 5000], desc: "工业级脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878609858cb8da5c8bc4e2b.jpg" },
+            { series: "K80", loadRange: [1000, 3300], desc: "中型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878608d58cb8da5c8bc4daa.jpg" },
+            { series: "R80", loadRange: [1000, 3300], desc: "中型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878608d58cb8da5c8bc4daa.jpg" },
+            { series: "81", loadRange: [600, 1800], desc: "通用工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878607858cb8da5c8bc4cb3.jpg" },
+            { series: "80", loadRange: [600, 1800], desc: "通用工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878606f58cb8da5c8bc4c73.jpg" },
+            { series: "69", loadRange: [450, 800], desc: "中型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878606758cb8da5c8bc4c26.jpg" },
+            { series: "68", loadRange: [450, 800], desc: "中型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878605e58cb8da5c8bc4bc3.jpg" },
+            { series: "K63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878608558cb8da5c8bc4d45.jpg" },
+            { series: "R63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860bc58cb8da5c8bc4fc2.jpg" },
+            { series: "N63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860b658cb8da5c8bc4f63.jpg" },
+            { series: "51", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878604558cb8da5c8bc4aed.jpg" },
+            { series: "56", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878605558cb8da5c8bc4b7b.jpg" },
+            { series: "46", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878603c58cb8da5c8bc4ab9.jpg" },
+            { series: "42", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878602c58cb8da5c8bc4a31.jpg" },
+            { series: "33", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878601858cb8da5c8bc498d.jpg" },
+            { series: "30", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878600858cb8da5c8bc4907.jpg" }
         ];
         
         // 材质数据（包含详细的属性信息）
@@ -1761,19 +1774,13 @@
                     }
                 }
 
-                // 确定图片路径
+                // 确定图片路径 - 根据支架系列选择对应图片
                 let imageSrc;
-                if (bracketSeriesList[0] === bracketSeriesList[1] && bracketSeriesList[1] === bracketSeriesList[2]) {
-                    // 三个方案支架系列都一样
-                    imageSrc = 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
-                } else if (bracketSeriesList[0] === bracketSeriesList[1]) {
-                    // 标准方案和增强方案支架系列相同
-                    imageSrc = index < 2 ? 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png' : 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
-                } else if (bracketSeriesList[1] === bracketSeriesList[2]) {
-                    // 增强方案和高强方案支架系列相同
-                    imageSrc = index === 0 ? 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png' : 'https://pic1.imgdb.cn/item/6877525358cb8da5c8b84b2b.png';
+                if (bracket && bracket.imageUrl) {
+                    // 使用支架系列对应的图片
+                    imageSrc = bracket.imageUrl;
                 } else {
-                    // 其他情况，全部用第一个链接
+                    // 备用图片
                     imageSrc = 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
                 }
 
