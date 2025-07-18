@@ -711,7 +711,7 @@
             }
             
             .material-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -768,6 +768,43 @@
             
             .input-section, .result-section {
                 padding: 20px;
+            }
+            
+            .material-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .material-card {
+                padding: 10px;
+            }
+            
+            .material-name {
+                font-size: 0.85rem;
+            }
+            
+            .material-hardness {
+                font-size: 0.75rem;
+                padding: 2px 6px;
+            }
+            
+            .material-desc {
+                font-size: 0.8rem;
+                min-height: 35px;
+            }
+            
+            .property-label {
+                font-size: 0.75rem;
+            }
+            
+            .rating-number {
+                font-size: 0.8rem;
+                min-width: 20px;
+            }
+            
+            .grid-box {
+                width: 12px;
+                height: 12px;
             }
         }
     </style>
@@ -1797,8 +1834,42 @@
                             <div class="material-grid">
                                 ${(() => {
                                     let mats = suitableMaterials.slice(0, 2);
-                                    if (mats.length === 1) mats = [mats[0], mats[0]];
-                                    if (mats.length === 0) mats = [{name: '——', hardness: '', desc: '暂无推荐', rollingResistance: 0, wearResistance: 0, floorProtection: 0, noise: 0, advantages: '', disadvantages: ''}, {name: '——', hardness: '', desc: '暂无推荐', rollingResistance: 0, wearResistance: 0, floorProtection: 0, noise: 0, advantages: '', disadvantages: ''}];
+                                    
+                                    // 确保始终有两个材质卡片，保持与其他方案对齐
+                                    if (mats.length === 0) {
+                                        // 如果没有推荐材质，创建两个占位卡片
+                                        mats = [
+                                            {
+                                                name: '暂无推荐', 
+                                                hardness: '——', 
+                                                desc: '当前条件下暂无合适材质推荐', 
+                                                rollingResistance: 0, 
+                                                wearResistance: 0, 
+                                                floorProtection: 0, 
+                                                noise: 0, 
+                                                advantages: '建议调整参数或联系客服', 
+                                                disadvantages: '需要进一步评估'
+                                            }, 
+                                            {
+                                                name: '暂无推荐', 
+                                                hardness: '——', 
+                                                desc: '当前条件下暂无合适材质推荐', 
+                                                rollingResistance: 0, 
+                                                wearResistance: 0, 
+                                                floorProtection: 0, 
+                                                noise: 0, 
+                                                advantages: '建议调整参数或联系客服', 
+                                                disadvantages: '需要进一步评估'
+                                            }
+                                        ];
+                                    } else if (mats.length === 1) {
+                                        // 如果只有一个推荐材质，复制它以确保两个卡片
+                                        mats = [mats[0], {...mats[0]}];
+                                    }
+                                    
+                                    // 确保最多只有两个材质卡片
+                                    mats = mats.slice(0, 2);
+                                    
                                     return mats.map(m => generateMaterialCard(m)).join('');
                                 })()}
                             </div>
