@@ -465,7 +465,7 @@
         
         .material-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr; /* 始终一列，无论屏幕宽度 */
             gap: 15px;
             margin-top: 10px;
         }
@@ -807,16 +807,54 @@
                 height: 12px;
             }
         }
+        .selected-bracket-img{box-shadow:0 0 0 2px #4299e1;border-radius:8px;background:#f0f6ff;}
+        .selected-bracket-text{background:#e6f0ff;color:#1a3a6c !important;}        
+        .schemes-container-watermark-bg {
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            user-select: none;
+            overflow: hidden;
+        }
+        .schemes-container-watermark-bg::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 200%; /* 更大，铺满整个推荐区域对角线 */
+            height: 90%;
+            transform: translate(-50%, -50%) rotate(-60deg);
+            background: url('https://pic1.imgdb.cn/item/687f46bb58cb8da5c8cb2189.png') center center no-repeat;
+            background-size: contain;
+            opacity: 0.05;
+            pointer-events: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
+    <!-- 斜向水印logo，覆盖页面但不影响观感 -->
+    <div style="pointer-events:none;user-select:none;position:fixed;z-index:0;top:0;left:0;width:100vw;height:100vh;overflow:hidden;">
+      <img src="https://pic1.imgdb.cn/item/687f46bb58cb8da5c8cb2189.png" alt="JIANGLONG LOGO 水印" style="
+        position:absolute;
+        top:10vh;
+        left:-10vw;
+        width:80vw;
+        max-width:900px;
+        opacity:0.05;
+        transform:rotate(-65deg);
+        filter: grayscale(30%);
+        ">
+    </div>
     <div class="container" id="full-container">
         <header>
             <div class="header-top">
                 <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-cogs"></i>
-                    </div>
+                        <img src="https://pic1.imgdb.cn/item/6880ad5c58cb8da5c8d04480.png" alt="江龙脚轮" style="width:100px;height:100px;">
                     <div class="logo-text">
                         <h1>江龙脚轮选型系统</h1>
                         <p>FABE话术生成器 - 专业脚轮解决方案</p>
@@ -824,7 +862,7 @@
                 </div>
                 <div class="datetime-weather">
                     <div id="current-date">2025年7月11日 星期五</div>
-                    <div id="weather">阳江天气: 晴 28℃</div>
+                    <div id="weather">阳江天气: 晴 24℃</div>
                 </div>
             </div>
         </header>
@@ -907,6 +945,12 @@
                 <button class="calculate-btn" id="calculate-btn">
                     <i class="fas fa-calculator"></i> 计算并推荐方案
                 </button>
+                <div class="result-details" id="result-details" style="margin-top:18px;">
+                    <h4>方案说明：</h4>
+                    <p>1. <strong>标准方案</strong>：满足基本载重需求，性价比高，适用于常规使用场景</p>
+                    <p>2. <strong>增强方案</strong>：提供10%额外安全裕度，适用于频繁使用或中等强度场景</p>
+                    <p>3. <strong>高强方案</strong>：提供25%额外安全裕度，适用于高强度、高频率或关键应用场景</p>
+                </div>
             </div>
             
             <div class="result-section">
@@ -927,13 +971,6 @@
                     
                     <div class="schemes-container" id="schemes-container">
                         <!-- 方案会通过JS动态生成 -->
-                    </div>
-                    
-                    <div class="result-details" id="result-details">
-                        <h4>方案说明：</h4>
-                        <p>1. <strong>标准方案</strong>：满足基本载重需求，性价比高，适用于常规使用场景</p>
-                        <p>2. <strong>增强方案</strong>：提供10%额外安全裕度，适用于频繁使用或中等强度场景</p>
-                        <p>3. <strong>高强方案</strong>：提供25%额外安全裕度，适用于高强度、高频率或关键应用场景</p>
                     </div>
                 </div>
             </div>
@@ -1006,7 +1043,7 @@
 
     <script>
         // 更新日期和天气
-        function updateDateTime() {
+        async function updateDateTime() {
             const now = new Date();
             const options = { 
                 year: 'numeric', 
@@ -1015,17 +1052,31 @@
                 weekday: 'long' 
             };
             document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', options);
-            
-            // 这里在实际应用中应该调用天气API
-            document.getElementById('weather').textContent = '阳江天气: 晴 28℃';
+
+            // 调用天气API获取实时天气
+            try {
+                const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=Yangjiang,cn&appid=YOUR_API_KEY&units=metric');
+                if (response.ok) {
+                    const weatherData = await response.json();
+                    const weatherDescription = weatherData.weather[0].description;
+                    const temperature = weatherData.main.temp;
+                    document.getElementById('weather').textContent = `阳江天气: ${weatherDescription} ${temperature}℃`;
+                } else {
+                    console.error('天气API请求失败', response.status);
+                }
+            } catch (error) {
+                console.error('天气API请求错误', error);
+            }
         }
 
-        // 默认显示脚轮类型选择区域
+        // 默认显示脚轮类型选择区域，修复 section 可能为 null 的问题
         document.addEventListener('DOMContentLoaded', function() {
             const section = document.getElementById('caster-type-section');
-            section.style.display = 'block';
-            section.style.opacity = '1';
-            section.style.maxHeight = '500px';
+            if (section) {
+                section.style.display = 'block';
+                section.style.opacity = '1';
+                section.style.maxHeight = '500px';
+            }
         });
 
         // 脚轮尺寸数据（包含高度信息）
@@ -1043,11 +1094,12 @@
             { diameter: 300, size: "12寸", loadRange: [200, 5500], height: 420 },
             { diameter: 400, size: "16寸", loadRange: [250, 7500], height: 560 }
         ];
+        // 允许的轮径数组，供推荐方案判断用
+        const allowedDiameters = wheelSizes.map(ws => ws.diameter);
         
         // 支架系列数据（包含图片URL）
         const bracketSeries = [
             { series: "K91", loadRange: [10000, Infinity], desc: "超重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860aa58cb8da5c8bc4ee7.jpg" },
-            { series: "R91", loadRange: [10000, Infinity], desc: "超重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860aa58cb8da5c8bc4ee7.jpg" },
             { series: "K90", loadRange: [3000, 10000], desc: "重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860a058cb8da5c8bc4e81.jpg" },
             { series: "R90", loadRange: [3000, 10000], desc: "重型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687860c958cb8da5c8bc506b.jpg" },
             { series: "K88", loadRange: [2000, 5000], desc: "工业级脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878609858cb8da5c8bc4e2b.jpg" },
@@ -1066,7 +1118,10 @@
             { series: "46", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878603c58cb8da5c8bc4ab9.jpg" },
             { series: "42", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878602c58cb8da5c8bc4a31.jpg" },
             { series: "33", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878601858cb8da5c8bc498d.jpg" },
-            { series: "30", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878600858cb8da5c8bc4907.jpg" }
+            { series: "30", loadRange: [25, 135], desc: "轻型商用脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/6878600858cb8da5c8bc4907.jpg" },
+            { series: "N63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "product_images/N63.jpg" },
+            { series: "K63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "product_images/K63.jpg" },
+            { series: "63", loadRange: [100, 550], desc: "轻型工业脚轮支架", imageUrl: "https://pic1.imgdb.cn/item/687b65f558cb8da5c8c712c4.jpg" }
         ];
         
         // 材质数据（包含详细的属性信息）
@@ -1081,7 +1136,7 @@
                 noise: 3,
                 desc: "适用于轻载、减震需求场合，地板保护好",
                 advantages: "减震性能优异，地板保护好",
-                disadvantages: "耐磨性一般，载重有限",
+                disadvantages: "需定期检查胎压；需避开尖锐物",
                 scenarioPriority: {
                     general: 2,
                     medical: 3,
@@ -1102,7 +1157,7 @@
                 noise: 2,
                 desc: "减震性好，适用于不平地面",
                 advantages: "减震性好，噪音低",
-                disadvantages: "载重能力有限",
+                disadvantages: "需承受高滚动阻力；需防老化开裂",
                 scenarioPriority: {
                     general: 4,
                     medical: 5,
@@ -1123,7 +1178,7 @@
                 noise: 3,
                 desc: "适用于轻载、静音需求场合",
                 advantages: "静音，地板保护好",
-                disadvantages: "耐磨性一般，载重有限",
+                disadvantages: "限轻载使用；需避开高温、粗糙地面",
                 scenarioPriority: {
                     general: 3,
                     medical: 5,
@@ -1144,7 +1199,7 @@
                 noise: 3,
                 desc: "经济实用，适用于室内平坦地面",
                 advantages: "价格实惠，静音效果好",
-                disadvantages: "耐磨性一般，不适用于粗糙地面",
+                disadvantages: "需避开油污溶剂；需防高温软化",
                 scenarioPriority: {
                     general: 3,
                     medical: 5,
@@ -1165,7 +1220,7 @@
                 noise: 3,
                 desc: "耐磨性好，适用于多种地面",
                 advantages: "耐磨性强，适合中等载重",
-                disadvantages: "滚动阻力较大",
+                disadvantages: "需避开高温、尖锐物；禁用于静音区",
                 scenarioPriority: {
                     general: 4,
                     medical: 4,
@@ -1186,7 +1241,7 @@
                 noise: 4,
                 desc: "高承载，耐磨，适用于工业环境",
                 advantages: "高载重能力，耐磨性极佳",
-                disadvantages: "噪音较大，成本较高",
+                disadvantages: "需避开高温、尖锐物；禁用于安静敏感区",
                 scenarioPriority: {
                     general: 5,
                     medical: 2,
@@ -1207,7 +1262,7 @@
                 noise: 3,
                 desc: "适用于洗地机等设备，柔软静音",
                 advantages: "静音，地板保护好",
-                disadvantages: "载重能力有限",
+                disadvantages: "限轻载使用；需防高温变形",
                 scenarioPriority: {
                     general: 2,
                     medical: 4,
@@ -1215,27 +1270,6 @@
                     food: 2,
                     heavy: 1,
                     cleanroom: 3
-                },
-                tempRange: [-20, 75]
-            },
-            { 
-                name: "浇注硬PU", 
-                hardness: "70 ShoreD", 
-                maxLoad: 1000, 
-                rollingResistance: 4, 
-                wearResistance: 4, 
-                floorProtection: 4, 
-                noise: 3,
-                desc: "高耐磨，适用于重载洗地机等设备，特殊环境可达-40~75℃",
-                advantages: "耐磨性强，适合重载",
-                disadvantages: "硬度高，减震一般",
-                scenarioPriority: {
-                    general: 3,
-                    medical: 3,
-                    outdoor: 3,
-                    food: 2,
-                    heavy: 3,
-                    cleanroom: 2
                 },
                 tempRange: [-20, 75]
             },
@@ -1249,7 +1283,7 @@
                 noise: 3,
                 desc: "经济型材质，适用于一般环境",
                 advantages: "价格低，耐腐蚀",
-                disadvantages: "耐磨性一般，地板保护一般",
+                disadvantages: "需避开低温；限轻载使用",
                 scenarioPriority: {
                     general: 2,
                     medical: 2,
@@ -1270,7 +1304,7 @@
                 noise: 4,
                 desc: "高温耐磨，适用于高温环境和重载设备",
                 advantages: "耐高温，耐磨性好",
-                disadvantages: "地板保护一般，噪音较大",
+                disadvantages: "需铺垫板保护地板；需严防冲击",
                 scenarioPriority: {
                     general: 3,
                     medical: 1,
@@ -1291,7 +1325,7 @@
                 noise: 4,
                 desc: "高强度，适用于重载环境",
                 advantages: "高载重能力，耐磨性强",
-                disadvantages: "滚动阻力大，地板保护一般",
+                disadvantages: "需铺垫板保护地板；需防潮储存",
                 scenarioPriority: {
                     general: 4,
                     medical: 1,
@@ -1303,7 +1337,7 @@
                 tempRange: [-20, 90]
             },
             { 
-                name: "MC尼龙", 
+                name: "浇注尼龙", 
                 hardness: "70 ShoreD", 
                 maxLoad: 15000, 
                 rollingResistance: 5, 
@@ -1312,7 +1346,7 @@
                 noise: 4,
                 desc: "超高强度，适用于重载环境",
                 advantages: "极高载重能力，耐磨性强",
-                disadvantages: "滚动阻力大，地板保护一般",
+                disadvantages: "需防潮储存/使用；需避开低温",
                 scenarioPriority: {
                     general: 4,
                     medical: 1,
@@ -1333,7 +1367,7 @@
                 noise: 5,
                 desc: "极端重载，适用于特殊工业环境",
                 advantages: "极高载重能力，耐磨性极佳",
-                disadvantages: "噪音大，地板保护差",
+                disadvantages: "需铺垫板保护地板；需防锈处理；",
                 scenarioPriority: {
                     general: 3,
                     medical: 1,
@@ -1354,7 +1388,7 @@
                 noise: 5,
                 desc: "极端重载，适用于特殊工业环境",
                 advantages: "极高载重能力，耐磨性极佳",
-                disadvantages: "噪音大，地板保护差",
+                disadvantages: "需铺垫板保护地板；需防锈处理",
                 scenarioPriority: {
                     general: 3,
                     medical: 1,
@@ -1375,7 +1409,7 @@
                 noise: 5,
                 desc: "极端重载，适用于特殊工业环境",
                 advantages: "极高载重能力，耐磨性极佳",
-                disadvantages: "噪音大，地板保护差",
+                disadvantages: "需铺垫板保护地板；需严格防锈处理",
                 scenarioPriority: {
                     general: 3,
                     medical: 1,
@@ -1385,50 +1419,8 @@
                     cleanroom: 1
                 },
                 tempRange: [-60, 550]
-            },
-            // 下面为图片未列出但原有的材质，保留原温度区间
-            { 
-                name: "食品级PU", 
-                hardness: "90 ShoreA", 
-                maxLoad: 800, 
-                rollingResistance: 4, 
-                wearResistance: 4, 
-                floorProtection: 5, 
-                noise: 3,
-                desc: "符合FDA标准，适用于食品加工环境",
-                advantages: "无毒无味，易清洁，防油污",
-                disadvantages: "成本较高",
-                scenarioPriority: {
-                    general: 2,
-                    medical: 4,
-                    outdoor: 3,
-                    food: 5,
-                    heavy: 2,
-                    cleanroom: 4
-                },
-                tempRange: [-20, 80]
-            },
-            { 
-                name: "防静电TPE", 
-                hardness: "80 ShoreA", 
-                maxLoad: 300, 
-                rollingResistance: 4, 
-                wearResistance: 3, 
-                floorProtection: 5, 
-                noise: 3,
-                desc: "适用于无尘车间和电子工业环境",
-                advantages: "防静电，无尘，静音",
-                disadvantages: "载重能力有限",
-                scenarioPriority: {
-                    general: 2,
-                    medical: 4,
-                    outdoor: 1,
-                    food: 3,
-                    heavy: 1,
-                    cleanroom: 5
-                },
-                tempRange: [-20, 60]
             }
+            // 下面为图片未列出但原有的材质，保留原温度区间
         ];
         
         // 环境与温度区间映射
@@ -1511,40 +1503,51 @@
             if (heightReq) {
                 resultTitle += ` | 高度要求: ${heightReq} mm`;
             }
-            resultTitle += ` | 应用场景: ${getScenarioDescription(applicationScenario)}`;
+            resultTitle += `<br>应用场景: ${getScenarioDescription(applicationScenario)}`;
 
-            document.getElementById('result-title').textContent = resultTitle;
+            document.getElementById('result-title').innerHTML = resultTitle;
             
             // 生成推荐方案
             generateRecommendations(loadPerWheel, heightReq, applicationScenario, environment);
         });
         
-        // 根据高度要求找到最合适的轮子尺寸
-        function findBestWheelForHeight(load, heightReq) {
-            // 首先尝试找到满足载重要求的轮子
-            let candidates = wheelSizes.filter(w => load >= w.loadRange[0] && load <= w.loadRange[1]);
-            
-            // 如果没有满足载重要求的轮子，找载重能力更高的
-            if (candidates.length === 0) {
-                candidates = wheelSizes.filter(w => load < w.loadRange[0]);
+        // 计算轮子高度区间
+        function getWheelHeightRange(diameter) {
+            return `${Math.round(diameter * 1.4)} mm`;
+        }
+        
+        // 根据支架系列和载重推荐轮子（可指定最小直径约束）
+        function findBestWheelForBracketAndLoad(bracketSeries, load, minDiameter = 0) {
+            const diameters = bracketWheelDiameters[bracketSeries] || [];
+            // 只选大于等于minDiameter的直径，并升序排列
+            const validDiameters = diameters.filter(d => d >= minDiameter).sort((a, b) => a - b);
+            if (validDiameters.length === 0) return null;
+            // 找到该支架轮径区间内所有能承载该负载的轮子
+            const candidateWheels = validDiameters.map(d => wheelSizes.find(w => w.diameter === d && load >= w.loadRange[0] && load <= w.loadRange[1])).filter(Boolean);
+            if (candidateWheels.length === 0) {
+                // 没有完全匹配，返回区间内最小轮径轮子
+                const d = validDiameters[0];
+                return wheelSizes.find(w => w.diameter === d);
             }
-            
-            // 如果没有候选轮子，返回null
-            if (candidates.length === 0) {
-                return null;
+            // 计算该支架允许的最大/最小载重
+            const minLoad = Math.min(...candidateWheels.map(w => w.loadRange[0]));
+            const maxLoad = Math.max(...candidateWheels.map(w => w.loadRange[1]));
+            // 计算负载在区间的占比
+            let percent = 0.5;
+            if (maxLoad > minLoad) {
+                percent = (load - minLoad) / (maxLoad - minLoad);
+                percent = Math.max(0, Math.min(1, percent));
             }
-            
-            // 如果有高度要求，找到最接近的轮子
-            if (heightReq) {
-                // 按高度差排序
-                candidates.sort((a, b) => {
-                    const diffA = Math.abs(a.height - heightReq);
-                    const diffB = Math.abs(b.height - heightReq);
-                    return diffA - diffB;
-                });
+            // 根据占比选择靠近最大/最小/中间的轮径
+            let idx = 0;
+            if (percent <= 0.33) {
+                idx = 0; // 靠近下限，选最小轮径
+            } else if (percent >= 0.66) {
+                idx = candidateWheels.length - 1; // 靠近上限，选最大轮径
+            } else {
+                idx = Math.floor(candidateWheels.length / 2); // 居中，选中间轮径
             }
-            
-            return candidates[0];
+            return candidateWheels[idx];
         }
         
         // 生成五格图
@@ -1558,6 +1561,13 @@
         
         // 生成材质卡片HTML
         function generateMaterialCard(material) {
+            // 处理缺点分行显示
+            let disadvantagesArr = [];
+            if (typeof material.disadvantages === 'string') {
+                disadvantagesArr = material.disadvantages.split(/[，,；;。\n]/).map(s => s.trim()).filter(Boolean);
+            } else if (Array.isArray(material.disadvantages)) {
+                disadvantagesArr = material.disadvantages;
+            }
             return `
                 <div class="material-card">
                     <div class="material-header">
@@ -1614,7 +1624,16 @@
                             </div>
                             <div>
                                 <i class="fas fa-exclamation-circle"></i>
-                                <span><strong>不足</strong>: ${material.disadvantages}</span>
+                                <span style="white-space:normal; word-break:keep-all;"><strong>不足</strong>: ${(() => {
+                                    let text = typeof material.disadvantages === 'string' ? material.disadvantages.replace(/\s*([；;])\s*/g, '$1') : (Array.isArray(material.disadvantages) ? material.disadvantages.join('；').replace(/\s*([；;])\s*/g, '$1') : '');
+                                    // 合并"理；"等孤立结尾，并用不换行空格防止断行
+                                    text = text.replace(/；/g, '；\u00A0');
+                                    const lines = text.split(/\n|<br\s*\/?\s*>/);
+                                    if (lines.length > 1 && lines[1].length <= 2) {
+                                        return lines[0] + lines[1];
+                                    }
+                                    return text;
+                                })()}</span>
                             </div>
                         </div>
                     </div>
@@ -1636,15 +1655,28 @@
                     return matMin <= envMin && matMax >= envMax;
                 });
             }
-            // 根据应用场景进行排序
-            suitableMaterials.sort((a, b) => {
-                // 获取当前场景下的优先级
-                const priorityA = a.scenarioPriority[applicationScenario] || 1;
-                const priorityB = b.scenarioPriority[applicationScenario] || 1;
-                
-                // 优先级高的排在前面
-                return priorityB - priorityA;
-            });
+            
+            // 15000kg以上优先推荐浇注尼龙
+            if (load >= 15000) {
+                suitableMaterials.sort((a, b) => {
+                    // 浇注尼龙优先
+                    if (a.name === "浇注尼龙" && b.name !== "浇注尼龙") return -1;
+                    if (b.name === "浇注尼龙" && a.name !== "浇注尼龙") return 1;
+                    
+                    // 其他材质按载重能力排序
+                    return b.maxLoad - a.maxLoad;
+                });
+            } else {
+                // 根据应用场景进行排序
+                suitableMaterials.sort((a, b) => {
+                    // 获取当前场景下的优先级
+                    const priorityA = a.scenarioPriority[applicationScenario] || 1;
+                    const priorityB = b.scenarioPriority[applicationScenario] || 1;
+                    
+                    // 优先级高的排在前面
+                    return priorityB - priorityA;
+                });
+            }
             
             return suitableMaterials;
         }
@@ -1705,31 +1737,132 @@
             return optimizations[scenario] || optimizations.general;
         }
         
+        // 支架区间推荐表
+        const bracketRangeRecommend = [
+            { min: 10000, max: Infinity, series: ["K91"] },
+            { min: 3000, max: 10000, series: ["K90", "R90"] },
+            { min: 2000, max: 5000, series: ["K88", "R88"] },
+            { min: 1000, max: 3300, series: ["K80", "R80"] },
+            { min: 600, max: 1800, series: ["80", "81"] },
+            { min: 450, max: 800, series: ["68", "69"] },
+            { min: 100, max: 449, series: ["N63", "K63", "63", "51", "R63"] },
+            { min: 25, max: 135, series: ["30", "33", "42", "46", "56"] }
+        ];
+        
+        function getBracketSeriesByLoad(load, schemeType = 'standard') {
+            // 135公斤以下特殊逻辑
+            if (load <= 135) {
+                if (schemeType === 'standard') {
+                    return ["30", "33"];
+                } else if (schemeType === 'enhanced') {
+                    return ["46", "42"];
+                } else if (schemeType === 'strong') {
+                    return ["56"];
+                }
+            }
+            // 100-449公斤区间推荐逻辑
+            if (load > 99 && load < 450) {
+                // 51系列仅推荐300kg及以下
+                let result = [];
+                if (load <= 300) result.push("51");
+                // 优先推荐N63、K63
+                result.push("N63", "K63", "63", "R63");
+                return result;
+            }
+            // 其它区间优先K开头（子母），其次N开头（新款），不推荐R开头
+            // bracketSeries已包含所有系列
+            // 先筛选K开头
+            let candidates = bracketSeries.filter(b => b.series.startsWith('K') && load >= b.loadRange[0] && load <= b.loadRange[1]);
+            if (candidates.length > 0) return candidates.map(b => b.series);
+            // 再筛选N开头
+            candidates = bracketSeries.filter(b => b.series.startsWith('N') && load >= b.loadRange[0] && load <= b.loadRange[1]);
+            if (candidates.length > 0) return candidates.map(b => b.series);
+            // 其它非R开头
+            candidates = bracketSeries.filter(b => !b.series.startsWith('R') && load >= b.loadRange[0] && load <= b.loadRange[1]);
+            if (candidates.length > 0) return candidates.map(b => b.series);
+            // 最后兜底
+            candidates = bracketSeries.filter(b => load >= b.loadRange[0] && load <= b.loadRange[1]);
+            if (candidates.length > 0) return candidates.map(b => b.series);
+            return [];
+        }
+        
+        // 支架系列对应推荐轮子直径
+        const bracketWheelDiameters = {
+            '30': [25, 35, 40, 50],
+            '33': [25, 35, 40, 50, 65, 75],
+            '42': [75, 88, 100, 125, 150],
+            '46': [75, 88, 100, 125, 150],
+            '56': [75, 88, 100, 125, 150],
+            '51': [75, 100, 125, 150, 200, 250],
+            '63': [75, 100, 125, 150, 200, 250],
+            'K63': [75, 100, 125, 150, 200, 250],
+            'N63': [75, 100, 125, 150, 200, 250],
+            'R63': [75, 100, 125, 150, 200, 250],
+            '68': [100, 125, 150, 200, 250],
+            '69': [100, 125, 150, 200, 250],
+            '80': [100, 125, 150, 200, 250, 300],
+            '81': [100, 125, 150, 200, 250, 300],
+            'K80': [150, 200, 250, 300],
+            'R80': [150, 200, 250, 300],
+            'K88': [150, 200, 250, 300, 350],
+            'R88': [150, 200, 250, 300, 350],
+            'K90': [150, 200, 250, 300, 350, 400, 500],
+            'R90': [150, 200, 250, 300, 350, 400, 500],
+            'K91': [150, 200, 250, 300, 350, 400, 500],
+        };
+        
         // 生成推荐方案
         function generateRecommendations(baseLoad, heightReq, applicationScenario, environment) {
-
+            const logoUrl = 'https://pic1.imgdb.cn/item/687f46bb58cb8da5c8cb2189.png';
+            // 3D模型链接映射表
+            const bracket3DLinks = {
+                '30': 'https://3d.casterpartner.com/model/show_299.html',
+                '33': 'https://3d.casterpartner.com/model/show_257.html',
+                '42': 'https://3d.casterpartner.com/model/show_407.html',
+                '46': 'https://3d.casterpartner.com/model/show_427.html',
+                '56': 'https://3d.casterpartner.com/model/show_452.html',
+                '51': 'https://3d.casterpartner.com/model/show_736.html',
+                '63': 'https://3d.casterpartner.com/model/show_738.html',
+                'K63': 'https://3d.casterpartner.com/model/show_738.html',
+                'N63': 'https://3d.casterpartner.com/model/show_738.html',
+                '68': 'https://3d.casterpartner.com/model/show_737.html',
+                'R63': 'https://3d.casterpartner.com/model/show_203.html',
+                '69': 'https://3d.casterpartner.com/model/show_245.html',
+                '80': 'https://3d.casterpartner.com/model/show_232.html',
+                '81': 'https://3d.casterpartner.com/model/show_232.html',
+                'K80': 'https://3d.casterpartner.com/model/show_739.html',
+                'R80': 'https://3d.casterpartner.com/model/show_739.html',
+                'K90': 'https://3d.casterpartner.com/model/show_740.html',
+                'R90': 'https://3d.casterpartner.com/model/show_740.html',
+                'K88': 'https://3d.casterpartner.com/model/show_741.html',
+                'R88': 'https://3d.casterpartner.com/model/show_741.html',
+                'K91': 'https://3d.casterpartner.com/model/show_615.html',
+            };
             const schemesContainer = document.getElementById('schemes-container');
             schemesContainer.innerHTML = '';
-            
+            // 添加超大区域水印
+            if (!schemesContainer.querySelector('.schemes-container-watermark-bg')) {
+                const bg = document.createElement('div');
+                bg.className = 'schemes-container-watermark-bg';
+                schemesContainer.appendChild(bg);
+                schemesContainer.style.position = 'relative';
+            }
             // 三种方案载重
             const schemeLoads = [
                 baseLoad, 
                 baseLoad * 1.1, 
                 baseLoad * 1.25
             ];
-            
             const schemeNames = [
                 "标准方案",
                 "增强方案",
                 "高强方案"
             ];
-            
             const schemeDescriptions = [
                 "满足基本载重需求，性价比高，适用于常规使用场景",
                 "提供10%额外安全裕度，适用于频繁使用或中等强度场景",
                 "提供25%额外安全裕度，适用于高强度、高频率或关键应用场景"
             ];
-            
             const schemeBenefits = [
                 [
                     "成本效益最大化，减少初始投资",
@@ -1747,168 +1880,268 @@
                     "最大化设备使用寿命，降低总拥有成本"
                 ]
             ];
-            
             // 获取应用场景优化建议
             const scenarioOptimization = getScenarioOptimization(applicationScenario);
-            
             // 收集所有方案的支架和轮子信息
             const schemes = schemeLoads.map((load, index) => {
-                const bracket = bracketSeries.find(b => load >= b.loadRange[0] && load <= b.loadRange[1]) || 
-                               bracketSeries.find(b => load < b.loadRange[0]);
-                const wheel = findBestWheelForHeight(load, heightReq);
-                return { bracket, wheel, load };
-            });
-
-            const bracketSeriesList = schemes.map(s => s.bracket.series);
-
-            // 确定图片分配情况
-            let imageCase = '';
-            if (bracketSeriesList[0] === bracketSeriesList[1] && bracketSeriesList[1] === bracketSeriesList[2]) {
-                imageCase = 'allSame';
-            } else if (bracketSeriesList[0] === bracketSeriesList[1] || bracketSeriesList[0] === bracketSeriesList[2] || bracketSeriesList[1] === bracketSeriesList[2]) {
-                imageCase = 'twoSame';
-            } else {
-                imageCase = 'allDifferent';
-            }
-
-            // 找出不同的索引（如果是twoSame情况）
-            let differentIndex = -1;
-            if (imageCase === 'twoSame') {
-                if (bracketSeriesList[0] === bracketSeriesList[1]) {
-                    differentIndex = 2;
-                } else if (bracketSeriesList[0] === bracketSeriesList[2]) {
-                    differentIndex = 1;
-                } else {
-                    differentIndex = 0;
-                }
-            }
-
-            // 生成方案卡片
-            schemes.forEach((scheme, index) => {
-                const { bracket, wheel, load } = scheme;
-                const suitableMaterials = filterMaterialsByScenario(applicationScenario, load, environment);
-
-                // 创建方案卡片
-                const schemeCard = document.createElement('div');
-                schemeCard.className = `scheme ${index === 1 ? 'recommended' : ''}`;
-
-                // 高度匹配状态
-                let heightMatchStatus = '';
-                if (heightReq && wheel) {
-                    const heightDiff = Math.abs(wheel.height - heightReq);
-                    const heightDiffPercent = Math.round((heightDiff / heightReq) * 100);
-
-                    if (heightDiffPercent <= 10) {
-                        heightMatchStatus = `<span class="height-match"><i class="fas fa-check-circle"></i> 高度匹配 (${heightDiffPercent}% 差异)</span>`;
-                    } else {
-                        heightMatchStatus = `<span class="height-warning"><i class="fas fa-exclamation-triangle"></i> 高度差异 ${heightDiffPercent}% (要求: ${heightReq}mm, 推荐: ${wheel.height}mm)</span>`;
+                let schemeType = 'standard';
+                if (index === 1) schemeType = 'enhanced';
+                if (index === 2) schemeType = 'strong';
+                let bracketSeriesArr = getBracketSeriesByLoad(load, schemeType);
+                if (load > 25 && load <= 550) {
+                    if (schemeType === 'standard') {
+                        bracketSeriesArr = ["30", "33"];
+                    } else if (schemeType === 'enhanced') {
+                        bracketSeriesArr = ["46", "42"];
+                    } else if (schemeType === 'strong') {
+                        bracketSeriesArr = ["56"];
                     }
                 }
-
-                // 确定图片路径 - 根据支架系列选择对应图片
-                let imageSrc;
-                if (bracket && bracket.imageUrl) {
-                    // 使用支架系列对应的图片
-                    imageSrc = bracket.imageUrl;
-                } else {
-                    // 备用图片
-                    imageSrc = 'https://pic1.imgdb.cn/item/6877522958cb8da5c8b84b19.png';
+                const brackets = bracketSeriesArr.map(s => bracketSeries.find(b => b.series === s)).filter(Boolean);
+                return { brackets, load };
+            });
+            // 递增轮子直径逻辑放在渲染阶段
+            const wheels = [];
+            schemes.forEach((scheme, index) => {
+                let { brackets, load } = scheme;
+                let minDiameter = 0;
+                if (index > 0 && wheels[index-1]) {
+                    minDiameter = wheels[index-1].diameter;
                 }
-
+                // 默认主图为第一个
+                let currentImgSeries = brackets[0]?.series;
+                // 推荐轮子（按支架系列和载重，递增约束）
+                let wheel = findBestWheelForBracketAndLoad(currentImgSeries, load, minDiameter);
+                wheels.push(wheel);
+                const suitableMaterials = filterMaterialsByScenario(applicationScenario, load, environment);
+                const schemeCard = document.createElement('div');
+                schemeCard.className = `scheme ${index === 1 ? 'recommended' : ''}`;
+                let allSeries = [];
+                let allSeriesDesc = '';
+                if (load > 10000) {
+                    allSeries = ["K91"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 3000) {
+                    allSeries = ["K90", "R90"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 2000) {
+                    allSeries = ["K88", "R88"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 1000) {
+                    allSeries = ["K80", "R80"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 600) {
+                    allSeries = ["80", "81"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 99 && load <= 550) {
+                    allSeries = ["51", "63", "N63", "K63", "R63"];
+                    if (load > 300) {
+                        allSeries = allSeries.filter(s => s !== "51");
+                    }
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load > 24 && load <= 99) {
+                    allSeries = ["30", "33", "42", "46", "56"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else if (load <= 24) {
+                    allSeries = ["30", "33", "42", "46", "56"];
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                } else {
+                    allSeries = brackets.map(b=>b.series);
+                    allSeriesDesc = getBracketDesc(allSeries[0]);
+                }
+                // 默认主图为第一个
+                let mainImgSeries = allSeries[0];
+                let mainImgUrl = bracketSeries.find(b => b.series === mainImgSeries)?.imageUrl || '';
+                // 3D模型链接
+                let main3DLink = bracket3DLinks[mainImgSeries] || '';
                 schemeCard.innerHTML = `
-                    <img src="${imageSrc}" alt="${schemeNames[index]}产品图" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:15px;" onerror="this.src='product_images/default.jpg';">
-                    <h3>${schemeNames[index]}</h3>
-                    <p style="color: #4a5568; margin-bottom: 12px; font-size: 0.9rem;">${schemeDescriptions[index]}</p>
-                    <div class="scheme-content">
+                    <div style=\"position:relative;text-align:center;margin-bottom:10px;\">
+                        <img id=\"main-img-${index}\" src=\"${mainImgUrl}\" alt=\"主产品图\" style=\"width:180px;max-width:220px;height:120px;object-fit:cover;border-radius:8px;box-shadow:0 2px 8px #eee;margin:0 10px;cursor:pointer;\">
+                        ${main3DLink ? `<a href=\"${main3DLink}\" class=\"main-3d-link\" target=\"_blank\" style=\"display:inline-block;margin-left:8px;vertical-align:middle;\"><i class=\"fas fa-cube\"></i> 3D模型</a>` : `<a class=\"main-3d-link\" style=\"display:none\"></a>`}
+                        <img src=\"${logoUrl}\" alt=\"logo水印\" style=\"position:absolute;right:8px;bottom:calc(8px + 5cm);transform:rotate(180deg) scaleX(-1);width:90px;height:40px;opacity:0.18;z-index:2;pointer-events:none;user-select:none;\">
+                    </div>
+                    <h3 style=\"display:flex;align-items:center;justify-content:space-between;\">${schemeNames[index]}
+                    </h3>
+                    <p style=\"color: #4a5568; margin-bottom: 12px; font-size: 0.9rem;\">${schemeDescriptions[index]}</p>
+                    <div style=\"margin-bottom:2px;font-weight:600;color:#2d3748;font-size:0.95rem;\">支架类型:</div>
+                    <div style=\"display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-bottom:6px;\">
+                        ${allSeries.map((series,i) => {
+                            const b = bracketSeries.find(b=>b.series===series);
+                            return `<button class=\"series-btn-${index} ${i===0?'selected-bracket-text':''}\" data-series=\"${series}\" data-img=\"${b?.imageUrl||''}\" style=\"cursor:pointer;padding:2px 10px;border-radius:6px;font-weight:bold;font-size:1.02rem;color:#2b6cb0;border:1px solid #cbd5e0;background:#f8fafc;transition:background 0.2s;\">${series}</button>`;
+                        }).join('')}
+                        <span style=\"color:#888;font-size:0.95rem;margin-left:8px;\">(${allSeriesDesc})</span>
+                    </div>
+                    <div class=\"scheme-content\"> 
                         <ul>
-                            <li><strong>支架系列:</strong> ${bracket ? bracket.series : '--'} <span style="color: #718096; font-size: 0.85rem;">(${bracket ? bracket.desc : ''})</span></li>
-                            <li><strong>轮子尺寸:</strong> ${wheel ? wheel.size : '--'}</li>
                             <li><strong>轮子直径:</strong> ${wheel ? `${wheel.diameter}mm` : '--'}</li>
-                            <li><strong>单轮载重:</strong> <span style="font-weight: bold; color: #2b6cb0;">${load.toFixed(2)} kg</span></li>
-                            <li><strong>总高度:</strong> ${wheel ? `${wheel.height}mm` : '--'} 
-                                ${heightReq && wheel ? heightMatchStatus : ''}
+                            <li><strong>单轮载重:</strong> <span style=\"font-weight: bold; color: #2b6cb0;\">${load.toFixed(2)} kg</span></li>
+                            <li><strong>总高度:</strong> ${wheel ? getWheelHeight(wheel.diameter) : '--'}
+                                ${(() => {
+                                    if (!wheel || !heightReq) return '';
+                                    const h = wheel.diameter * 1.4;
+                                    const diff = Math.abs(h - heightReq);
+                                    const percent = ((diff / heightReq) * 100).toFixed(0);
+                                    if (percent <= 10) {
+                                        return `<span class=\"height-match\"><i class=\"fas fa-check-circle\"></i> 高度匹配 (${percent}% 差异)</span>`;
+                                    } else {
+                                        return `<span class=\"height-warning\"><i class=\"fas fa-exclamation-circle\"></i> 高度警告 (${percent}% 差异)</span>`;
+                                    }
+                                })()}
                             </li>
                         </ul>
-                        <div class="material-options">
-                            <h5><i class="fas fa-layer-group"></i> 推荐材质</h5>
-                            <div class="material-grid">
+                        <div class=\"material-options\" style=\"position:relative;\"> 
+                            <h5 style=\"display:flex;align-items:center;justify-content:space-between;\"><i class=\"fas fa-layer-group\"></i> 推荐材质
+                            </h5>
+                            <div class=\"material-grid\"> 
                                 ${(() => {
                                     let mats = suitableMaterials.slice(0, 2);
-                                    
-                                    // 确保始终有两个材质卡片，保持与其他方案对齐
                                     if (mats.length === 0) {
-                                        // 如果没有推荐材质，创建两个占位卡片
                                         mats = [
-                                            {
-                                                name: '暂无推荐', 
-                                                hardness: '——', 
-                                                desc: '当前条件下暂无合适材质推荐', 
-                                                rollingResistance: 0, 
-                                                wearResistance: 0, 
-                                                floorProtection: 0, 
-                                                noise: 0, 
-                                                advantages: '建议调整参数或联系客服', 
-                                                disadvantages: '需要进一步评估'
-                                            }, 
-                                            {
-                                                name: '暂无推荐', 
-                                                hardness: '——', 
-                                                desc: '当前条件下暂无合适材质推荐', 
-                                                rollingResistance: 0, 
-                                                wearResistance: 0, 
-                                                floorProtection: 0, 
-                                                noise: 0, 
-                                                advantages: '建议调整参数或联系客服', 
-                                                disadvantages: '需要进一步评估'
-                                            }
+                                            { name: '暂无推荐', hardness: '——', desc: '当前条件下暂无合适材质推荐', rollingResistance: 0, wearResistance: 0, floorProtection: 0, noise: 0, advantages: '建议调整参数或联系客服', disadvantages: '需要进一步评估' },
+                                            { name: '暂无推荐', hardness: '——', desc: '当前条件下暂无合适材质推荐', rollingResistance: 0, wearResistance: 0, floorProtection: 0, noise: 0, advantages: '建议调整参数或联系客服', disadvantages: '需要进一步评估' }
                                         ];
                                     } else if (mats.length === 1) {
-                                        // 如果只有一个推荐材质，复制它以确保两个卡片
                                         mats = [mats[0], {...mats[0]}];
                                     }
-                                    
-                                    // 确保最多只有两个材质卡片
                                     mats = mats.slice(0, 2);
-                                    
                                     return mats.map(m => generateMaterialCard(m)).join('');
                                 })()}
                             </div>
                         </div>
-                        <div class="scheme-benefits">
-                            <h4><i class="fas fa-check-circle"></i> 方案优势</h4>
+                        <div class=\"scheme-benefits\">\n                            <h4 style=\"display:flex;align-items:center;justify-content:space-between;\"><i class=\"fas fa-check-circle\"></i> 方案优势
+                            </h4>
                             ${schemeBenefits[index].map(benefit => `
-                                <div class="benefit-item">
-                                    <i class="fas fa-check"></i>
-                                    <div>${benefit}</div>
-                                </div>
+                                <div class=\"benefit-item\">\n                                    <i class=\"fas fa-check\"></i>\n                                    <div>${benefit}</div>\n                                </div>
                             `).join('')}
-                            <div style="margin-top: 10px; border-top: 1px dashed #cbd5e0; padding-top: 8px;">
-                                <h4><i class="fas fa-lightbulb"></i> ${scenarioOptimization.title}</h4>
-                                ${scenarioOptimization.tips.map(tip => `
-                                    <div class="benefit-item">
-                                        <i class="fas fa-angle-right"></i>
-                                        <div>${tip}</div>
-                                    </div>
+                            <div style=\"margin-top: 10px; border-top: 1px dashed #cbd5e0; padding-top: 8px;\">\n                                <h4><i class=\"fas fa-lightbulb\"></i> ${scenarioOptimization.title}</h4>\n                                ${scenarioOptimization.tips.map(tip => `
+                                    <div class=\"benefit-item\">\n                                        <i class=\"fas fa-angle-right\"></i>\n                                        <div>${tip}</div>\n                                    </div>
                                 `).join('')}
                             </div>
                         </div>
                     </div>
                 `;
-                
                 schemesContainer.appendChild(schemeCard);
+                // 切换主图和轮子
+                setTimeout(() => {
+                    const btns = schemeCard.querySelectorAll(`.series-btn-${index}`);
+                    const mainImg = schemeCard.querySelector(`#main-img-${index}`);
+                    btns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const imgUrl = this.getAttribute('data-img');
+                            const series = this.getAttribute('data-series');
+                            mainImg.src = imgUrl;
+                            btns.forEach(b=>b.classList.remove('selected-bracket-text'));
+                            this.classList.add('selected-bracket-text');
+                            // 切换3D模型链接
+                            const link = schemeCard.querySelector('.main-3d-link');
+                            if(link){
+                                const new3D = bracket3DLinks[series] || '';
+                                if(new3D){
+                                    link.href = new3D;
+                                    link.style.display = 'inline-block';
+                                }else{
+                                    link.removeAttribute('href');
+                                    link.style.display = 'none';
+                                }
+                            }
+                            // 切换轮子
+                            const newWheel = findBestWheelForBracketAndLoad(series, load);
+                            const ul = schemeCard.querySelector('ul');
+                            if (ul && newWheel) {
+                                ul.children[0].innerHTML = `<strong>轮子直径:</strong> ${newWheel.diameter}mm`;
+                                ul.children[2].innerHTML = `<strong>总高度:</strong> ${getWheelHeight(newWheel.diameter)}${(() => {
+                                    if (!heightReq) return '';
+                                    const h = newWheel.diameter * 1.4;
+                                    const diff = Math.abs(h - heightReq);
+                                    const percent = ((diff / heightReq) * 100).toFixed(0);
+                                    if (percent <= 10) {
+                                        return `<span class=\"height-match\"><i class=\"fas fa-check-circle\"></i> 高度匹配 (${percent}% 差异)</span>`;
+                                    } else {
+                                        return `<span class=\"height-warning\"><i class=\"fas fa-exclamation-circle\"></i> 高度警告 (${percent}% 差异)</span>`;
+                                    }
+                                })()}`;
+                            }
+                        });
+                    });
+                    // 支架图片点击跳转3D
+                    if(mainImg){
+                        mainImg.addEventListener('click', function(){
+                            const curSeriesBtn = schemeCard.querySelector('.series-btn-' + index + '.selected-bracket-text');
+                            const curSeries = curSeriesBtn ? curSeriesBtn.getAttribute('data-series') : mainImgSeries;
+                            const link = bracket3DLinks[curSeries] || '';
+                            if(link){
+                                window.open(link, '_blank');
+                            }
+                        });
+                    }
+                }, 0);
             });
         }
         
         // 生成图片按钮事件
         document.getElementById('generate-btn').addEventListener('click', function() {
-            const container = document.getElementById('full-container');
-            
-            html2canvas(container, {
+            // 只截取推荐方案区域
+            const resultSection = document.querySelector('.result-section');
+            // 1. 强制所有方案卡片内logo水印（img[alt='logo水印']）全显且不透明
+            const logoImgs = Array.from(resultSection.querySelectorAll("img[alt='logo水印']"));
+            // 记录原样式
+            const logoOriginalStyles = logoImgs.map(img => ({
+                opacity: img.style.opacity,
+                pointerEvents: img.style.pointerEvents,
+                userSelect: img.style.userSelect,
+                filter: img.style.filter
+            }));
+            logoImgs.forEach(img => {
+                img.style.opacity = '1';
+                img.style.pointerEvents = 'auto';
+                img.style.userSelect = 'auto';
+                img.style.filter = '';
+            });
+            // 2. 额外添加3个大水印logo（如原逻辑）
+            const logoUrl = 'https://pic1.imgdb.cn/item/687f46bb58cb8da5c8cb2189.png';
+            const watermarks = [];
+            const sectionRect = resultSection.getBoundingClientRect();
+            const logoWidth = sectionRect.width * 0.32;
+            const logoHeight = logoWidth * 0.18;
+            const positions = [
+                {top: '2%', left: '60%'},
+                {top: '38%', left: '32%'},
+                {top: '74%', left: '4%'}
+            ];
+            positions.forEach((pos, i) => {
+                const img = document.createElement('img');
+                img.src = logoUrl;
+                img.alt = 'logo水印';
+                img.style.position = 'absolute';
+                img.style.pointerEvents = 'none';
+                img.style.userSelect = 'none';
+                img.style.opacity = '0.18';
+                img.style.width = logoWidth + 'px';
+                img.style.height = logoHeight + 'px';
+                img.style.top = pos.top;
+                img.style.left = pos.left;
+                img.style.transform = 'rotate(-45deg)';
+                img.style.zIndex = '1';
+                img.className = 'screenshot-watermark-logo';
+                resultSection.appendChild(img);
+                watermarks.push(img);
+            });
+            // 3. 截图
+            html2canvas(resultSection, {
                 scale: 2,
                 useCORS: true
             }).then(canvas => {
+                // 4. 移除额外水印logo
+                watermarks.forEach(img => img.remove());
+                // 5. 还原所有logo水印样式
+                logoImgs.forEach((img, i) => {
+                    const style = logoOriginalStyles[i];
+                    img.style.opacity = style.opacity;
+                    img.style.pointerEvents = style.pointerEvents;
+                    img.style.userSelect = style.userSelect;
+                    img.style.filter = style.filter;
+                });
                 const imgData = canvas.toDataURL('image/png');
-                
                 // 创建下载链接
                 const link = document.createElement('a');
                 const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -1998,6 +2231,18 @@
                 document.getElementById('calculate-btn').click();
             });
         });
+
+        // 支架系列类型描述函数
+        function getBracketDesc(series) {
+            if (["30","33","42","46","56"].includes(series)) return "中重型商用脚轮支架";
+            if (["51","63","K63","N63","R63","69","68"].includes(series)) return "重型工业脚轮支架";
+            if (["80","81","K80","R80","K88","R88","K90","R90","K91"].includes(series)) return "超重型工业脚轮支架";
+            return "工业脚轮支架";
+        }
+        // 计算轮子高度（1.4倍直径）
+        function getWheelHeight(diameter) {
+            return `${Math.round(diameter * 1.4)} mm`;
+        }
     </script>
 
 </body></html>
